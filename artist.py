@@ -2,8 +2,8 @@ import tensorflow as tf
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.losses import BinaryCrossentropy
 
-# Custom modules
 from models import GAN
+from model_monitor import ModelMonitor
 
 class Artist():
 
@@ -24,7 +24,7 @@ class Artist():
         self.normalized_ds = normalized_ds
             
                 
-    def learn(self, gan: GAN, num_epochs: int, gen_learning_rate: float, dis_learning_rate: float):
+    def learn(self, gan: GAN, num_epochs: int, gen_learning_rate: float, dis_learning_rate: float, model_monitor: ModelMonitor):
         
         # Need to train the generator and the discriminator at the same time
         # Balancing act between of speed of generator and discriminator learning
@@ -40,8 +40,9 @@ class Artist():
         gan.compile(gen_optimiser, dis_optimiser, gen_loss, dis_loss)
 
         # Now training the gan as a whole
-        self.hist = gan.fit(self.normalized_ds, epochs = num_epochs)
+        self.hist = gan.fit(self.normalized_ds, epochs = num_epochs, callbacks = [model_monitor])
 
         # Saving the final gan and generator model as object attributes
         self.final_model = gan.generator_model
         self.final_gan = gan
+
