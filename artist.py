@@ -26,8 +26,8 @@ class Artist():
                 
     def learn(self, gan: GAN, num_epochs: int, gen_learning_rate: float, dis_learning_rate: float, model_monitor: ModelMonitor):
         
-        # Need to train the generator and the discriminator at the same time
-        # Balancing act between of speed of generator and discriminator learning
+        # Training the generator and the discriminator at the same time
+        # Balancing act between speed of generator and discriminator learning
 
         # Defining the optimisers
         gen_optimiser = Adam(learning_rate = gen_learning_rate)
@@ -39,7 +39,7 @@ class Artist():
 
         gan.compile(gen_optimiser, dis_optimiser, gen_loss, dis_loss)
 
-        # Now training the gan as a whole
+        # Training the GAN
         self.hist = gan.fit(self.normalized_ds, epochs = num_epochs, callbacks = [model_monitor])
 
         # Saving the final gan and generator model as object attributes

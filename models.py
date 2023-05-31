@@ -8,7 +8,7 @@ class Generator():
 
     def __init__(self, latent_dim: int, image_size: int):
 
-        # Input sizew will be user defined latent vector size
+        # Input size will be user defined latent vector size
         self.input_size = latent_dim
         
         self.model = Sequential()
@@ -89,10 +89,10 @@ class GAN(Model):
             # Combining the outputs
             dis_pred_realplusfake = tf.concat([dis_pred_fake, dis_pred_real], axis = 0)
 
-            # Need to create labels for this real and fake data (=1 if fake data)
+            # Creating labels for this real and fake data (fake=1, real=0)
             true_labels = tf.concat([tf.ones_like(dis_pred_fake), tf.zeros_like(dis_pred_real)], axis = 0)
 
-            # Adding output noise to make it a bit harder for the discriminator
+            # Adding output noise to discriminator (has various benefits for training)
             noise_real = self.noise*tf.random.uniform(tf.shape(dis_pred_real))
             noise_fake = self.noise*tf.random.uniform(tf.shape(dis_pred_fake))
             dis_pred_realplusfake += tf.concat([noise_fake, noise_real], axis = 0)
@@ -100,12 +100,12 @@ class GAN(Model):
             # Calculating the overall loss for the discriminative model
             total_dis_loss = self.dis_loss(true_labels, dis_pred_realplusfake)
 
-        # Then we want to backpropogate to calcualte gradients
+        # Backpropogate to calculate gradients
         dgrad = d_tape.gradient(total_dis_loss, self.discriminator_model.trainable_variables)
         # Then use this to update the weights for our discriminator model
         self.dis_optimiser.apply_gradients(zip(dgrad, self.discriminator_model.trainable_variables))
 
-        # Now we train the generator
+        # Training generator
         with tf.GradientTape(persistent=True) as g_tape:
             
             # Generate new data
@@ -117,7 +117,7 @@ class GAN(Model):
             predicted_labels = self.discriminator_model(gen_data, training = False)
 
             # Calculate the loss
-            # Here we reward the generator if the discriminator outputs 0 (ie believes its real)
+            # Reward the generator if the discriminator outputs 0 (ie believes its real)
             total_gen_loss = self.gen_loss(tf.zeros_like(predicted_labels), predicted_labels)
 
         # Calculate the gradients
